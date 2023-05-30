@@ -1,0 +1,90 @@
+#include <iostream>
+#include <limits.h>
+
+#define max 6
+#define INFINITY INT_MAX
+
+void dijkstra(int G[max][max], int n, int startnode);
+
+int main() {
+    int G[max][max] = {
+        {0, 10, 0, 0, 15, 5},
+        {10, 0, 10, 30, 0, 0},
+        {0, 10, 0, 12, 5, 20},
+        {0, 30, 12, 0, 0, 20},
+        {15, 0, 5, 0, 0, 0},
+        {5, 0, 0, 20, 0, 0}
+    };
+
+    int n = 6;
+    int startnode = 3;
+
+    dijkstra(G, n, startnode);
+
+    return 0;
+}
+
+void dijkstra(int G[max][max], int n, int startnode) {
+    int cost[max][max], distance[max], pred[max];
+    bool visited[max];
+
+    // Initialize cost matrix and distance array
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (G[i][j] == 0)
+                cost[i][j] = INFINITY;
+            else
+                cost[i][j] = G[i][j];
+        }
+        distance[i] = INFINITY; // Initialize distances to INFINITY
+        pred[i] = -1; // Initialize predecessors to -1
+        visited[i] = false;
+    }
+
+    distance[startnode] = 0;
+
+    // Dijkstra's algorithm
+    for (int i = 0; i < n - 1; i++) {
+        int minDistance = INFINITY;
+        int nextnode = -1;
+
+        // Find the nearest unvisited node
+        for (int j = 0; j < n; j++) {
+            if (!visited[j] && distance[j] < minDistance) {
+                minDistance = distance[j];
+                nextnode = j;
+            }
+        }
+
+        visited[nextnode] = true;
+
+        // Update distance values of adjacent nodes
+        for (int j = 0; j < n; j++) {
+            if (!visited[j] && cost[nextnode][j] != INFINITY &&
+                distance[nextnode] + cost[nextnode][j] < distance[j]) {
+                distance[j] = distance[nextnode] + cost[nextnode][j];
+                pred[j] = nextnode;
+            }
+        }
+    }
+
+    // Print the shortest paths
+    for (int i = 0; i < n; i++) {
+        if (i != startnode) {
+            std::cout << "Distance from node " << startnode << " to node " << i << ": ";
+            if (distance[i] == INFINITY) {
+                std::cout << "No path" << std::endl;
+            } else {
+                std::cout << distance[i] << std::endl;
+
+                std::cout << "Path: " << i;
+                int j = i;
+                do {
+                    j = pred[j];
+                    std::cout << " <- " << j;
+                } while (j != startnode);
+                std::cout << std::endl;
+            }
+        }
+    }
+}
